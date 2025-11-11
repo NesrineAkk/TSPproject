@@ -157,132 +157,7 @@ def hill_climbing():
     
     return trajet, dist, historique
 
-# 4. RECUIT SIMULÉ
-def recuit_simule():
-    print("\n[4/6] Exécution: Recuit Simulé...")
-    trajet = random_tour()
-    dist = total_distance(trajet)
-    meilleur_trajet = trajet.copy()
-    meilleure_dist = dist
-    historique = [dist]
-    temperature = 10000
-    
-    while temperature > 0.01:
-        i = random.randint(1, len(trajet) - 1)
-        j = random.randint(1, len(trajet) - 1)
-        nouveau_trajet = swap(trajet, i, j)
-        nouvelle_dist = total_distance(nouveau_trajet)
-        
-        delta = dist - nouvelle_dist
-        
-        if delta > 0 or random.random() < math.exp(delta / temperature):
-            trajet = nouveau_trajet
-            dist = nouvelle_dist
-            if dist < meilleure_dist:
-                meilleur_trajet = trajet.copy()
-                meilleure_dist = dist
-        
-        historique.append(meilleure_dist)
-        temperature *= 0.995
-    
-    return meilleur_trajet, meilleure_dist, historique
 
-# 5. RECHERCHE TABOU
-def recherche_tabou():
-    print("\n[5/6] Exécution: Recherche Tabou...")
-    trajet = random_tour()
-    dist = total_distance(trajet)
-    meilleur_trajet = trajet.copy()
-    meilleure_dist = dist
-    historique = [dist]
-    liste_tabou = []
-    taille_liste_tabou = 20
-    
-    for iter in range(1000):
-        meilleur_voisin = None
-        meilleur_dist_voisin = float('inf')
-        meilleur_mouvement = None
-        
-        for i in range(1, len(trajet) - 1):
-            for j in range(i + 1, len(trajet)):
-                mouvement = f"{i}-{j}"
-                if mouvement not in liste_tabou:
-                    voisin = swap(trajet, i, j)
-                    dist_voisin = total_distance(voisin)
-                    if dist_voisin < meilleur_dist_voisin:
-                        meilleur_voisin = voisin
-                        meilleur_dist_voisin = dist_voisin
-                        meilleur_mouvement = mouvement
-        
-        if meilleur_voisin:
-            trajet = meilleur_voisin
-            dist = meilleur_dist_voisin
-            liste_tabou.append(meilleur_mouvement)
-            if len(liste_tabou) > taille_liste_tabou:
-                liste_tabou.pop(0)
-            if dist < meilleure_dist:
-                meilleur_trajet = trajet.copy()
-                meilleure_dist = dist
-        
-        historique.append(meilleure_dist)
-    
-    return meilleur_trajet, meilleure_dist, historique
-
-# 6. ALGORITHME GÉNÉTIQUE
-def algorithme_genetique():
-    print("\n[6/6] Exécution: Algorithme Génétique...")
-    taille_population = 100
-    generations = 500
-    population = [random_tour() for _ in range(taille_population)]
-    historique = []
-    
-    for gen in range(generations):
-        nouvelle_population = []
-        
-        for i in range(taille_population):
-            parent1 = random.choice(population)
-            parent2 = random.choice(population)
-            
-            enfant = parent1.copy()
-            if random.random() < 0.8:
-                debut = random.randint(1, len(parent1) - 2)
-                fin = debut + random.randint(1, len(parent1) - debut - 1)
-                segment = parent2[debut:fin]
-                enfant = [0]
-                for gene in segment:
-                    if gene != 0:
-                        enfant.append(gene)
-                for gene in parent1:
-                    if gene != 0 and gene not in enfant:
-                        enfant.append(gene)
-            
-            if random.random() < 0.02:
-                i = random.randint(1, len(enfant) - 1)
-                j = random.randint(1, len(enfant) - 1)
-                enfant = swap(enfant, i, j)
-            
-            nouvelle_population.append(enfant)
-        
-        population = nouvelle_population
-        
-        meilleur_gen = population[0]
-        meilleure_dist_gen = total_distance(meilleur_gen)
-        for trajet in population:
-            dist = total_distance(trajet)
-            if dist < meilleure_dist_gen:
-                meilleur_gen = trajet
-                meilleure_dist_gen = dist
-        historique.append(meilleure_dist_gen)
-    
-    meilleur_trajet = population[0]
-    meilleure_dist = total_distance(meilleur_trajet)
-    for trajet in population:
-        dist = total_distance(trajet)
-        if dist < meilleure_dist:
-            meilleur_trajet = trajet
-            meilleure_dist = dist
-    
-    return meilleur_trajet, meilleure_dist, historique
 
 def afficher_resultat(methode, trajet, distance, historique):
     print("\n" + "="*70)
@@ -310,9 +185,7 @@ def main():
         ("Recherche Aléatoire", recherche_aleatoire),
         ("Recherche Locale", recherche_locale),
         ("Hill Climbing", hill_climbing),
-        ("Recuit Simulé", recuit_simule),
-        ("Recherche Tabou", recherche_tabou),
-        ("Algorithme Génétique", algorithme_genetique)
+
     ]
     
     for nom, fonction in methodes:
