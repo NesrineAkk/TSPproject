@@ -120,7 +120,7 @@ class graph:
         # Create an initial route starting from Algiers
         initial = self._create_initial_route()
 
-        for route, dist in self.local.two_optt(initial):
+        for route, dist in self.local.localSearch(initial):
             # Ensure Algiers stays at the start
             if route[0] != self.ALGIERS_INDEX:
                 algiers_pos = route.index(self.ALGIERS_INDEX)
