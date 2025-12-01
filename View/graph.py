@@ -8,8 +8,8 @@ import numpy as np
 # allow access to other folders (Algorithms, Utils)
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from Algorithms import LocalSearch, RandomSearch, HillClimbing
-from Utils.Evaluate import Utils
+from Algorithms import LocalSearch, RandomSearch, HillClimbing, SimulatedAnnealing
+from Utils.Utilities import Utils
 
 
 class graph:
@@ -22,6 +22,7 @@ class graph:
         self.local = LocalSearch.localSearch()
         self.randomSearch = RandomSearch.randomSearch()
         self.hill = HillClimbing.hillClimbing()
+        self.sa = SimulatedAnnealing.SimulatedAnnealing() 
 
         self.fig = None
         self.ax = None
@@ -59,16 +60,19 @@ class graph:
 
     def _add_buttons(self):
         ax_random = self.fig.add_axes([0.1, 0.01, 0.2, 0.05])
-        ax_local = self.fig.add_axes([0.4, 0.01, 0.2, 0.05])
-        ax_hill = self.fig.add_axes([0.7, 0.01, 0.2, 0.05])
+        ax_local = self.fig.add_axes([0.3, 0.01, 0.2, 0.05])
+        ax_hill = self.fig.add_axes([0.5, 0.01, 0.2, 0.05])
+        ax_sa = self.fig.add_axes([0.7, 0.01, 0.25, 0.05])  
 
         self.btn_random = Button(ax_random, 'Random Search')
         self.btn_local = Button(ax_local, 'Local Search')
         self.btn_hill = Button(ax_hill, 'Hill Climbing')
+        self.btn_sa = Button(ax_sa, 'Simulated Annealing')
 
         self.btn_random.on_clicked(self._on_random)
         self.btn_local.on_clicked(self._on_local)
         self.btn_hill.on_clicked(self._on_hill)
+        self.btn_sa.on_clicked(self._on_sa)
 
     def drawRoute(self, route, delay=0.3):
         if self.line and self.line in self.ax.lines:
@@ -120,7 +124,7 @@ class graph:
         # Create an initial route starting from Algiers
         initial = self._create_initial_route()
 
-        for route, dist in self.local.localSearch(initial):
+        for route, dist in self.local.two_optt(initial):
             # Ensure Algiers stays at the start
             if route[0] != self.ALGIERS_INDEX:
                 algiers_pos = route.index(self.ALGIERS_INDEX)
@@ -144,6 +148,30 @@ class graph:
                 route = [self.ALGIERS_INDEX] + route[:algiers_pos] + route[algiers_pos+1:]
             
             self.drawRoute(route)
+            print(f"new distance: {dist:.2f}")
+
+        print("Done.")
+
+    def _on_sa(self, event):
+        self.ax.set_title("Simulated Annealing")
+
+        initial = self._create_initial_route()
+
+        sampleNumber = 40
+        delta_prob = 0.9
+        alpha = 0.90
+        minimalTemp = 0.01
+
+        initialTemp = Utils.initial_temp(sampleNumber, initial, delta_prob)
+        schema = Utils.generate_schema(initialTemp, alpha, minimalTemp)
+
+        for route, dist in self.sa.simulated_annealing(initial, schema):
+
+            if route[0] != self.ALGIERS_INDEX:
+                algiers_pos = route.index(self.ALGIERS_INDEX)
+                route = [self.ALGIERS_INDEX] + route[:algiers_pos] + route[algiers_pos+1:]
+
+            self.drawRoute(route)   
             print(f"new distance: {dist:.2f}")
 
         print("Done.")
