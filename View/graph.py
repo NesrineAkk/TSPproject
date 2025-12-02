@@ -225,16 +225,17 @@ class graph:
 
             if dist < last_best:
 
+                # Rotate so Algiers is first
                 if route[0] != self.ALGIERS_INDEX:
-                    algiers_pos = route.index(self.ALGIERS_INDEX)
-                    route = [self.ALGIERS_INDEX] + route[:algiers_pos] + route[algiers_pos+1:]
+                    pos = route.index(self.ALGIERS_INDEX)
+                    route = route[pos:] + route[:pos]
 
-                self.drawRoute(route)
-                print(f"NEW BEST DISTANCE: {dist:.2f}")
+                # Add Algiers again ONLY for drawing (start = end)
+                route_to_draw = route + [self.ALGIERS_INDEX]
+
+                self.drawRoute(route_to_draw)
+                print(f"new distance: {dist:.2f}")
 
                 last_best = dist
 
         print("Done.")
-
-
-
