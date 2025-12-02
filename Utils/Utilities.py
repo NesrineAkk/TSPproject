@@ -77,7 +77,67 @@ class Utils:
         initial_temp = -deltaAvg / math.log(initialProbability)
 
         return initial_temp
+    
+    def initialize_population(initialRoute, population_size):
+        pop = []
+        for _ in range(population_size):
+            r = initialRoute[:]
+            random.shuffle(r)
+            pop.append(r)
+        return pop
+    
+
+    @staticmethod
+    def roulette_selection(population, fitness_values, selection_size):
+        total_fitness = sum(fitness_values)
+        selected = []
+        probabilities = [f / total_fitness for f in fitness_values]
+
+        for _ in range(selection_size):
+            r = random.random()
+            cumulative = 0
+            for i, prob in enumerate(probabilities):
+                cumulative += prob
+                if r <= cumulative:
+                    selected.append(population[i][:])
+                    break
+        return selected
 
 
+    @staticmethod
+    def order_crossover(parent1, parent2):
+        size = len(parent1)
+        child1 = [None] * size
+        child2 = [None] * size
 
-        
+        start, end = sorted(random.sample(range(size), 2))
+
+        child1[start:end] = parent1[start:end]
+        child2[start:end] = parent2[start:end]
+
+        Utils.fill_child(child1, parent2, start, end)
+        Utils.fill_child(child2, parent1, start, end)
+
+        return child1, child2
+
+
+    @staticmethod
+    def fill_child(child, parent, start, end):
+        size = len(child)
+        pos_parent = end
+        pos_child = end
+
+        while None in child:
+            gene = parent[pos_parent % size]
+            if gene not in child:
+                child[pos_child % size] = gene
+                pos_child += 1
+            pos_parent += 1
+
+
+    @staticmethod
+    def swap_mutation(route):
+        i, j = random.sample(range(len(route)), 2)
+        mutated = route[:]
+        mutated[i], mutated[j] = mutated[j], mutated[i]
+        return mutated
