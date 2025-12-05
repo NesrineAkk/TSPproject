@@ -85,26 +85,29 @@ class graph:
         self.btn_ga.on_clicked(self._on_ga)
 
 
-    def drawRoute(self, route, delay=0.3):
+    def drawRoute(self, route):
+    # Remove previous line if it exists
         if self.line and self.line in self.ax.lines:
             self.line.remove()
             self.line = None
-        
-        # Add Algiers at the end to complete the circuit
+
         full_route = list(route) + [self.ALGIERS_INDEX]
-        
+
+    # Get coordinates
         x_coords = self.x[full_route]
         y_coords = self.y[full_route]
 
-        # Draw progressive path
-        for i in range(1, len(full_route) + 1):
-            if self.line:
-                self.line.remove()
-                self.line = None
-            self.line, = self.ax.plot(x_coords[:i], y_coords[:i], color='blue', linewidth=1.5)
-            plt.pause(delay)
+    # Draw ONE continuous path
+        self.line, = self.ax.plot(
+            x_coords,
+            y_coords,
+            color='blue',
+            linewidth=2
+        )
 
         self.fig.canvas.draw()
+        plt.pause(0.01)  # Small pause so UI updates
+
 
     def _create_initial_route(self):
         """Create a random route that starts with Algiers"""
@@ -206,6 +209,15 @@ class graph:
     def _on_ga(self, event):
         self.ax.set_title("Genetic Algorithm")
 
+        for route, dist in self.ga.genetic_algorithm_visual(100, 100):
+            self.drawRoute(route)
+            print(f"Distance: {dist:.2f}")
+
+        print("Done.")
+
+''' def _on_ga(self, event):
+        self.ax.set_title("Genetic Algorithm")
+
         initial = self._create_initial_route()
 
         population_size = 50
@@ -238,4 +250,4 @@ class graph:
 
                 last_best = dist
 
-        print("Done.")
+        print("Done.") '''

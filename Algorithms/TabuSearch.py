@@ -44,7 +44,6 @@ class TabuSearch:
                         best_admissible_cost = cost
                         best_move = move
 
-            # No admissible move → reset
             if best_admissible is None:
                 TabuList.clear()
                 S = Best[:]
